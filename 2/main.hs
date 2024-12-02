@@ -1,8 +1,5 @@
 import Control.Applicative
-import Data.List
-import Data.Map qualified as M
 import System.Environment
-import System.IO
 
 safeCond :: (Num a, Ord a) => Ordering -> a -> a -> Bool
 safeCond o a b = compare a b == o && (diff <= 3) && (diff >= 1)
@@ -21,7 +18,9 @@ isSafeAdapting :: (Num a, Ord a) => [a] -> Bool
 isSafeAdapting = liftA2 (||) (isSafeAdapting' LT []) (isSafeAdapting' GT [])
 
 isSafeAdapting' :: (Num a, Ord a) => Ordering -> [a] -> [a] -> Bool
-isSafeAdapting' o l (x : y : xs) = (safeCond o x y && isSafeAdapting' o (l ++ [x]) (y : xs)) || isSafe' o (l ++ (x : xs)) || isSafe' o (l ++ (y : xs))
+isSafeAdapting' o l (x : y : xs)
+    | safeCond o x y = isSafeAdapting' o (l ++ [x]) (y : xs)
+    | otherwise = isSafe' o (l ++ (x : xs)) || isSafe' o (l ++ (y : xs))
 isSafeAdapting' _ _ _ = True
 
 -- Brute force
@@ -33,16 +32,16 @@ main :: IO ()
 main = do
     [fileLoc] <- getArgs
     file <- readFile fileLoc
+    let list = map (map read . words) $ lines file
 
     -- Part 1
-    let list = map (map read . words) $ lines file
     print $ length $ filter isSafe list
 
     -- Part 2
-    print $ length $ filter isSafeAdapting list
-    print $ length $ filter id $ map (any isSafe . removeOne) list -- work
     let sys = filter isSafeAdapting list
         brute = filter (any isSafe . removeOne) list
+    print $ length sys
+    print $ length brute
     putStrLn "Differences:"
     print $ filter (`notElem` sys) brute
     print $ filter (`notElem` brute) sys

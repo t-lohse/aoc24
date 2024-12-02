@@ -1,14 +1,15 @@
 import Data.List
 import Data.Map qualified as M
 import System.Environment
-import System.IO
 
+convert :: [String] -> ([Int], [Int])
 convert [] = ([], [])
 convert (x : xs) = (read a : as, read b : bs)
   where
     (as, bs) = convert xs
     [a, b] = words x
 
+sumCached :: M.Map Int Int -> [Int] -> [Int] -> Int
 sumCached _ [] _ = 0
 sumCached m (a : as) l = case M.lookup a m of
     Nothing -> (a * c) + sumCached (M.insert a c m) as l
