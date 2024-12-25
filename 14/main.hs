@@ -39,4 +39,4 @@ main = do
     -- Part 1
     print $ product $ map length $ quadrants cap $ map (scaleRobot 100 cap) robots
     -- Part 2 (Evil solution)
-    print $ snd $ maximumBy (\(a, _) (b, _) -> compare (maximum a) (maximum b)) $ map (\i -> (map length $ quadrants cap $ map (scaleRobot i cap) robots, i)) [0 .. 10000]
+    print $ snd $ maximumBy ((pure (compare) <*> maximum <*> minimum) . fst) $ map (\i -> (map length $ quadrants cap $ map (scaleRobot i cap) robots, i)) [0 .. 10000]
